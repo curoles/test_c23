@@ -3,7 +3,9 @@ CC:=/home/igor/tool/gcc-13.1.0/bindir/bin/gcc
 CFLAGS:=-Wall -Werror -std=gnu2x
 BLD:=../build
 
-TESTS:=$(BLD)/test_c23.o $(BLD)/test_nullptr.o
+TESTS:=$(BLD)/test_c23.o $(BLD)/test_nullptr.o $(BLD)/test_cleanup.o
+TESTS+=$(BLD)/test_transparent_union.o $(BLD)/test_enum.o $(BLD)/test_optional.o
+TESTS+=$(BLD)/test_foreachbit.o $(BLD)/test_returnif.o $(BLD)/test_arraylen.o
 
 all: $(TESTS)
 	$(CC) $(CFLAGS) $^ -o $(BLD)/test

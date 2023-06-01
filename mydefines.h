@@ -41,10 +41,10 @@
  * Example:
  * ```
  * void cleanup1(float** p) {printf("cleanup1 ptr=%p\n", *p);}
- * auto_cleanup(float*, cleanup1) d = nullptr;
+ * auto_cleanup(cleanup1, float*) a = nullptr;
  * ```
  */
-#define auto_cleanup(T, fn) __attribute__((cleanup(fn))) T
+#define auto_cleanup(fn, T) __attribute__((cleanup(fn))) T
 
 /* Count number of trailing zero bits in an integer.
  *
@@ -137,12 +137,12 @@
  * Example:
  * ```
  * int a[10] = {};
- * assert(fixlen_array_num_elements(a) == 10);
- * static_assert(fixlen_array_num_elements(a) == 10);
+ * assert(fixlen_array_len(a) == 10);
+ * static_assert(fixlen_array_len(a) == 10);
  * float b[] = {1, 2.0, 3.};
- * assert(fixlen_array_num_elements(b) == 3);
- * static_assert(fixlen_array_num_elements(b) == 3);
+ * assert(fixlen_array_len(b) == 3);
+ * static_assert(fixlen_array_len(b) == 3);
  * ```
  */
-#define fixlen_array_num_elements(a) ((sizeof(a)) / (sizeof(a[0])))
+#define fixlen_array_len(a) ((sizeof(a)) / (sizeof(a[0])))
 
