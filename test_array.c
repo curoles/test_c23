@@ -19,6 +19,11 @@ int test_array(void)
     assert(static_b.data[1] == 5);
     assert(static_b.data[2] == 6);
 
+    static array_int_t static_c = {3, {[0 ... 2]=7}};
+    assert(static_c.data[0] == 7);
+    assert(static_c.data[1] == 7);
+    assert(static_c.data[2] == 7);
+
     array_int_t* stack_a = smart_array_stack_new(int, 100);
     int* d = stack_a->data;
     for (int i = 0; i < stack_a->len; ++i) {d[i]=i;}

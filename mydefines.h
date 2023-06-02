@@ -12,6 +12,8 @@
     #define auto_type auto
 #endif
 
+#define FN_ATTR_CONST __attribute__ ((const))
+
 /* Macro to define GCC extention "transparent union".
  *
  * Example:
@@ -149,7 +151,11 @@ static inline void cleanup_free(void* p) {
  * assert(a.iserr && a.error==7);
  * ```
  */
-#define error_value_type(T, E) struct { T value; E error; bool iserr; }
+#define error_value_type(T, E) struct { union {T value; E error;}; bool iserr; }
+
+#define container_of(ptr, type, member) ({ \
+    const typeof( ((type *)0)->member ) *__mptr = (ptr); \
+    (type *)( (char *)__mptr - offsetof(type,member) );})
 
 /* Return number of elements in fixed length array.
  *
@@ -165,6 +171,24 @@ static inline void cleanup_free(void* p) {
  */
 #define fixlen_array_len(a) ((sizeof(a)) / (sizeof(a[0])))
 
+/* Smart_array knows its own length.
+ *
+ * Example:
+ * ```
+ * typedef smart_array(int) array_int_t;
+ *
+ * static array_int_t static_b = {3, {4, 5, 6}};
+ * assert(static_b.data[0] == 4);
+ * assert(static_b.data[1] == 5);
+ * assert(static_b.data[2] == 6);
+ * static array_int_t static_c = {3, {[0 ... 2]=7}};
+ *
+ * auto_free array_int_t* heap_a = smart_array_heap_new(int, 100, malloc);
+ * d = heap_a->data;
+ * for (int i = 0; i < heap_a->len; ++i) {d[i]=i;}
+ * for (int i = 0; i < heap_a->len; ++i) {assert(d[i] == i);}
+ * ```
+ */
 #define smart_array(T) \
     struct smart_array_##T { \
         unsigned int len; \
@@ -172,6 +196,16 @@ static inline void cleanup_free(void* p) {
     }
 
 
+/* Allocate smart_array on stack.
+ *
+ * Example:
+ * ```
+ * array_int_t* stack_a = smart_array_stack_new(int, 100);
+ * int* d = stack_a->data;
+ * for (int i = 0; i < stack_a->len; ++i) {d[i]=i;}
+ * for (int i = 0; i < stack_a->len; ++i) {assert(d[i] == i);}
+ * ```
+ */
 #define smart_array_stack_new(T, alen) \
     ({ \
     typeof (alen) _ARRAY_len = (alen); \
@@ -180,6 +214,13 @@ static inline void cleanup_free(void* p) {
     ptr->len = _ARRAY_len; \
     ptr;})
 
+/* Allocate smart_array on heap.
+ *
+ * Example:
+ * ```
+ * auto_free array_int_t* heap_a = smart_array_heap_new(int, 100, malloc);
+ * ```
+ */
 #define smart_array_heap_new(T, alen, allocator) \
     ({ \
     typeof (alen) _ARRAY_len = (alen); \

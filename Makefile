@@ -6,7 +6,7 @@ BLD:=../build
 TESTS:=c23 nullptr cleanup
 TESTS+=transparent_union enum optional
 TESTS+=foreachbit returnif arraylen
-TESTS+=array
+TESTS+=array constexpr immutable offsetof
 
 TESTS:= $(foreach item,$(TESTS),$(BLD)/test_$(item).o)
 
