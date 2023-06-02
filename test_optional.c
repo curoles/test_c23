@@ -1,7 +1,7 @@
 #include <assert.h>
 #include "mydefines.h"
 
-typedef optional_type(int) optional_int_t;
+//typedef optional_type(int) optional_int_t;
 
 static
 optional_int_t test_optional_val(int i) {

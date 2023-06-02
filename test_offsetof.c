@@ -24,6 +24,5 @@ int test_offsetof(void)
     assert(container_of(d, struct A, d) == &a);
     assert(container_of(e, struct D, e) ==  d);
 
-
     return 0;
 }

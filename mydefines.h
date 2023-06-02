@@ -135,6 +135,9 @@ static inline void cleanup_free(void* p) {
  */
 #define optional_type(T) struct { T value; bool present; }
 
+typedef optional_type(int) optional_int_t;
+typedef optional_type(unsigned int) optional_uint_t;
+
 /* Macro to define value type with an error.
  *
  * Example:
@@ -153,6 +156,36 @@ static inline void cleanup_free(void* p) {
  */
 #define error_value_type(T, E) struct { union {T value; E error;}; bool iserr; }
 
+/* Find parent struct pointer by its child pointer.
+ *
+ * Example:
+ * ```
+ * struct A {
+ *     struct B {} b;
+ *     struct C {} c;
+ *     struct D {
+ *         struct E {} e;
+ *     } d;
+ * };
+ * 
+ * int test_offsetof(void)
+ * {
+ *     struct A a;
+ * 
+ *     struct B* b = &a.b;
+ *     struct C* c = &a.c;
+ *     struct D* d = &a.d;
+ *     struct E* e = &d->e;
+ * 
+ *     assert(container_of(b, struct A, b) == &a);
+ *     assert(container_of(c, struct A, c) == &a);
+ *     assert(container_of(d, struct A, d) == &a);
+ *     assert(container_of(e, struct D, e) ==  d);
+ * 
+ *     return 0;
+ * }
+ * ```
+ */
 #define container_of(ptr, type, member) ({ \
     const typeof( ((type *)0)->member ) *__mptr = (ptr); \
     (type *)( (char *)__mptr - offsetof(type,member) );})

@@ -14,7 +14,7 @@ all: $(TESTS)
 	$(CC) $(CFLAGS) $^ -o $(BLD)/test
 	valgrind $(BLD)/test
 
-$(BLD)/%.o: %.c mydefines.h
+$(BLD)/%.o: %.c mydefines.h array.inc.h
 	@mkdir -p $(BLD)
 	$(CC) $(CFLAGS) -c $< -o $@
 

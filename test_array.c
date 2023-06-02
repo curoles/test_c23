@@ -7,6 +7,8 @@ typedef smart_array(int) array_int_t;
 // see: https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
 array_int_t static_a = {3, {1, 2, 3}};
 
+static
+int test_array2(void);
 
 int test_array(void)
 {
@@ -33,6 +35,34 @@ int test_array(void)
     d = heap_a->data;
     for (int i = 0; i < heap_a->len; ++i) {d[i]=i;}
     for (int i = 0; i < heap_a->len; ++i) {assert(d[i] == i);}
+
+    test_array2();
+
+    return 0;
+}
+
+#define _ARRAY_TYPE int
+#define _ARRAY_TYPE_NAME int
+#include "array.inc.h"
+
+static
+int test_array2(void)
+{
+    int a[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+    auto_type pos = int_array_find(10, a, 7);
+    assert(pos.present && pos.value == 7);
+
+    pos = int_array_find(10, a, 77);
+    assert(!pos.present);
+
+    assert(int_array_contains(10, a, 5));
+    assert(!int_array_contains(10, a, 55));
+
+    assert(int_array_equal(10, a, a));
+
+    int b[10] = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
+    assert(!int_array_equal(10, a, b));
 
     return 0;
 }
