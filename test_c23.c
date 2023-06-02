@@ -11,6 +11,7 @@ extern int test_optional(void);
 extern int test_foreachbit(void);
 extern int test_returnif(void);
 extern int test_arraylen(void);
+extern int test_array(void);
 
 static test_fn_t tests[] = {
     test_nullptr,
@@ -21,6 +22,7 @@ static test_fn_t tests[] = {
     test_foreachbit,
     test_returnif,
     test_arraylen,
+    test_array,
     0
 };
 

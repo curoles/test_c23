@@ -46,6 +46,25 @@
  */
 #define auto_cleanup(fn, T) __attribute__((cleanup(fn))) T
 
+#if defined _STDLIB_H
+/* To be used as `__attribute__((cleanup(cleanup_free)))`
+ *
+ */
+static inline void cleanup_free(void* p) {
+    free(*(void**)p);
+}
+#endif
+
+/* Automatically free heap allocated memory.
+ *
+ * Example:
+ * ```
+ * auto_free array_int_t* heap_a = smart_array_heap_new(int, 100, malloc);
+ * ```
+ */
+#define auto_free __attribute__((cleanup(cleanup_free)))
+
+
 /* Count number of trailing zero bits in an integer.
  *
  */
@@ -146,3 +165,25 @@
  */
 #define fixlen_array_len(a) ((sizeof(a)) / (sizeof(a[0])))
 
+#define smart_array(T) \
+    struct smart_array_##T { \
+        unsigned int len; \
+        T data[]; \
+    }
+
+
+#define smart_array_stack_new(T, alen) \
+    ({ \
+    typeof (alen) _ARRAY_len = (alen); \
+    struct smart_array_##T* ptr = (struct smart_array_##T*) \
+        __builtin_alloca(sizeof(struct smart_array_##T) + _ARRAY_len*sizeof(T)); \
+    ptr->len = _ARRAY_len; \
+    ptr;})
+
+#define smart_array_heap_new(T, alen, allocator) \
+    ({ \
+    typeof (alen) _ARRAY_len = (alen); \
+    struct smart_array_##T* ptr = (struct smart_array_##T*) \
+        allocator(sizeof(struct smart_array_##T) + _ARRAY_len*sizeof(T)); \
+    ptr->len = _ARRAY_len; \
+    ptr;})
