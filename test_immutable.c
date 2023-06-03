@@ -14,7 +14,9 @@ constexpr S const_s = {7, 'a', 123.456f};
 static
 FN_ATTR_CONST
 const S* get_immutable_instance() {
-    const S* s = &(constexpr S){8, 'b', 3.456f};
+    // constexpr does NOT work, object is created on stack,
+    // valdgrind catches it
+    const S* s = &(/*constexpr*/static S){8, 'b', 3.456f};
     return s;
 }
 

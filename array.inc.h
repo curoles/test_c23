@@ -249,6 +249,50 @@ _SARRAY_FN(insertion_sort)(_SMART_ARRAY_T* a)
     return _ARRAY_FN(insertion_sort)(a->len, a->data);
 }
 
+static inline
+__attribute__((nonnull(1, 2)))
+void
+_ARRAY_FN(swap_two_pointers)(_ARRAY_TYPE* a, _ARRAY_TYPE* b)
+{
+    _ARRAY_TYPE tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
+static inline
+_ARRAY_RW(2, 1) FN_ATTR_RETURNS_NONNULL
+_ARRAY_TYPE*
+_ARRAY_FN(bubble_sort)(unsigned int len, _ARRAY_TYPE a[len])
+{
+    _ARRAY_TYPE tmp;
+    bool swapped;
+    for (unsigned int step = 0; step < len - 1; ++step) {
+        swapped = false;
+        for (unsigned int i = 0; i < len - step - 1; ++i) {
+            if (_ARRAY_TYPE_LT(a[i + 1], a[i]) ) {
+                //_ARRAY_FN(swap_two_pointers)(&a[i], &a[i + 1]);
+                tmp = a[i]; a[i+1] = a[i]; a[i] = tmp;
+                swapped = true;
+            }
+        }
+    
+        // no swapping means the array is already sorted
+        if (!swapped) {
+            break;
+        }
+    }
+
+    return a;
+}
+
+static inline
+__attribute__((nonnull(1))) FN_ATTR_RETURNS_NONNULL
+_ARRAY_TYPE*
+_SARRAY_FN(bubble_sort)(_SMART_ARRAY_T* a)
+{
+    return _ARRAY_FN(bubble_sort)(a->len, a->data);
+}
+
 #undef _SMART_ARRAY
 #undef _SMART_ARRAY_T
 #undef _ARRAY_TYPE_EQ
