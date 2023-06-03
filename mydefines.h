@@ -12,7 +12,10 @@
     #define auto_type auto
 #endif
 
-#define FN_ATTR_CONST __attribute__ ((const))
+#define FN_ATTR_CONST               __attribute__ ((const))
+#define FN_ATTR_WARN_UNUSED_RESULT  __attribute__ ((warn_unused_result))
+#define FN_ATTR_RETURNS_NONNULL     __attribute__ ((returns_nonnull))
+
 
 /* Macro to define GCC extention "transparent union".
  *
@@ -204,60 +207,4 @@ typedef optional_type(unsigned int) optional_uint_t;
  */
 #define fixlen_array_len(a) ((sizeof(a)) / (sizeof(a[0])))
 
-/* Smart_array knows its own length.
- *
- * Example:
- * ```
- * typedef smart_array(int) array_int_t;
- *
- * static array_int_t static_b = {3, {4, 5, 6}};
- * assert(static_b.data[0] == 4);
- * assert(static_b.data[1] == 5);
- * assert(static_b.data[2] == 6);
- * static array_int_t static_c = {3, {[0 ... 2]=7}};
- *
- * auto_free array_int_t* heap_a = smart_array_heap_new(int, 100, malloc);
- * d = heap_a->data;
- * for (int i = 0; i < heap_a->len; ++i) {d[i]=i;}
- * for (int i = 0; i < heap_a->len; ++i) {assert(d[i] == i);}
- * ```
- */
-#define smart_array(T) \
-    struct smart_array_##T { \
-        unsigned int len; \
-        T data[]; \
-    }
 
-
-/* Allocate smart_array on stack.
- *
- * Example:
- * ```
- * array_int_t* stack_a = smart_array_stack_new(int, 100);
- * int* d = stack_a->data;
- * for (int i = 0; i < stack_a->len; ++i) {d[i]=i;}
- * for (int i = 0; i < stack_a->len; ++i) {assert(d[i] == i);}
- * ```
- */
-#define smart_array_stack_new(T, alen) \
-    ({ \
-    typeof (alen) _ARRAY_len = (alen); \
-    struct smart_array_##T* ptr = (struct smart_array_##T*) \
-        __builtin_alloca(sizeof(struct smart_array_##T) + _ARRAY_len*sizeof(T)); \
-    ptr->len = _ARRAY_len; \
-    ptr;})
-
-/* Allocate smart_array on heap.
- *
- * Example:
- * ```
- * auto_free array_int_t* heap_a = smart_array_heap_new(int, 100, malloc);
- * ```
- */
-#define smart_array_heap_new(T, alen, allocator) \
-    ({ \
-    typeof (alen) _ARRAY_len = (alen); \
-    struct smart_array_##T* ptr = (struct smart_array_##T*) \
-        allocator(sizeof(struct smart_array_##T) + _ARRAY_len*sizeof(T)); \
-    ptr->len = _ARRAY_len; \
-    ptr;})
