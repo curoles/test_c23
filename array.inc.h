@@ -93,7 +93,9 @@ _ARRAY_RO(2, 1) FN_ATTR_WARN_UNUSED_RESULT
 _ARRAY_TYPE
 _ARRAY_FN(get_at)(unsigned int len, const _ARRAY_TYPE a[len], unsigned int pos)
 {
+#ifdef _ASSERT_H
     assert(pos < len); // access with bounds checking
+#endif
     return a[pos];
 }
 
@@ -110,7 +112,9 @@ _ARRAY_WO(2, 1)
 void
 _ARRAY_FN(set_at)(unsigned int len, _ARRAY_TYPE a[len], unsigned int pos, _ARRAY_TYPE val)
 {
+#ifdef _ASSERT_H
     assert(pos < len); // access with bounds checking
+#endif
     a[pos] = val;
 }
 
