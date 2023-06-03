@@ -91,7 +91,13 @@ int test_array2(void)
     auto_free int_smart_array_t* e = int_smart_array_heap_realloc(ee, 1000, realloc);
 
     for (unsigned int i = 0; i < e->len; ++i) {
-        e->data[i] = e->len - 1;
+        e->data[i] = e->len - i;
+    }
+
+    int_smart_array_insertion_sort(e);
+    for (unsigned int i = 1; i < e->len; ++i) {
+        //printf("a[%u]:%d <= a[%u]:%d\n", i-1, e->data[i-1], i, e->data[i]);
+        assert(e->data[i-1] <= e->data[i]);
     }
 
     return 0;

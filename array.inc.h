@@ -8,9 +8,14 @@
 
 #define _ARRAY_RO(ref_index, size_index) __attribute__ ((access (read_only, ref_index, size_index)))
 #define _ARRAY_WO(ref_index, size_index) __attribute__ ((access (write_only, ref_index, size_index)))
+#define _ARRAY_RW(ref_index, size_index) __attribute__ ((access (read_write, ref_index, size_index)))
 
 #ifndef _ARRAY_TYPE_EQ
 #define _ARRAY_TYPE_EQ(a, b) ({(a) == (b);})
+#endif
+
+#ifndef _ARRAY_TYPE_LT
+#define _ARRAY_TYPE_LT(a, b) ({(a) < (b);})
 #endif
 
 #define _SMART_ARRAY   PPCAT(_ARRAY_TYPE_NAME, _smart_array)
@@ -209,11 +214,44 @@ _SARRAY_FN(fill)(_SMART_ARRAY_T* a, _ARRAY_TYPE val)
     return _ARRAY_FN(fill)(a->len, a->data, val);
 }
 
+static inline
+_ARRAY_RW(2, 1) FN_ATTR_RETURNS_NONNULL
+_ARRAY_TYPE*
+_ARRAY_FN(insertion_sort)(unsigned int len, _ARRAY_TYPE a[len])
+{
+    unsigned int j;
+    _ARRAY_TYPE key;
+
+    for (unsigned int i = 1; i < len; ++i) {
+        key = a[i];
+        j = i;
+ 
+        /* Shift elements of a[0..i-1], that are GT key, to one position right */
+        while (j > 0 && _ARRAY_TYPE_LT(key, a[j - 1])) {
+            a[j] = a[j - 1];
+            --j;
+        }
+        a[j] = key;
+    }
+
+    return a;
+}
+
+static inline
+__attribute__((nonnull(1))) FN_ATTR_RETURNS_NONNULL
+_ARRAY_TYPE*
+_SARRAY_FN(insertion_sort)(_SMART_ARRAY_T* a)
+{
+    return _ARRAY_FN(insertion_sort)(a->len, a->data);
+}
+
 #undef _SMART_ARRAY
 #undef _SMART_ARRAY_T
 #undef _ARRAY_TYPE_EQ
+#undef _ARRAY_TYPE_LT
 #undef _ARRAY_RO
 #undef _ARRAY_WO
+#undef _ARRAY_RW
 #undef _ARRAY_FN
 #undef _SARRAY_FN
 #undef PPCAT_NX
