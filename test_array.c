@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "mydefines.h"
 
 #define _ARRAY_TYPE int
@@ -20,7 +21,7 @@ int test_array(void)
     assert(static_a.data[2] == 3);
 
     static int_smart_array_t static_b = {3, {4, 5, 6}};
-    assert(static_b.data[0] == 4);
+    assert(static_b.data[0] == 4); assert(int_smart_array_get_at(&static_b, 0) == 4);
     assert(static_b.data[1] == 5);
     assert(static_b.data[2] == 6);
 
@@ -29,15 +30,18 @@ int test_array(void)
     assert(static_c.data[1] == 7);
     assert(static_c.data[2] == 7);
 
-    int_smart_array_t* stack_a = int_smart_array_stack_new(100);
+    assert(sizeof(int_smart_array_t) == sizeof(unsigned int));
+
+    int_smart_array_t* stack_a = smart_array_stack_new(int_smart_array_t, int, 100);
     int* d = stack_a->data;
-    for (int i = 0; i < stack_a->len; ++i) {d[i]=i;}
-    for (int i = 0; i < stack_a->len; ++i) {assert(d[i] == i);}
+    assert(stack_a->len == 100);
+    for (unsigned int i = 0; i < stack_a->len; ++i) {d[i]=i;}
+    for (unsigned int i = 0; i < stack_a->len; ++i) {assert(d[i] == (int)i);}
 
     auto_free int_smart_array_t* heap_a = int_smart_array_heap_new(100, malloc);
     d = heap_a->data;
-    for (int i = 0; i < heap_a->len; ++i) {d[i]=i;}
-    for (int i = 0; i < heap_a->len; ++i) {assert(d[i] == i);}
+    for (unsigned int i = 0; i < heap_a->len; ++i) {d[i]=i;}
+    for (unsigned int i = 0; i < heap_a->len; ++i) {assert(d[i] == (int)i);}
 
     test_array2();
 
@@ -76,11 +80,19 @@ int test_array2(void)
     assert(int_array_get_at(10, c, 3) == 888);
 
     auto_free int_smart_array_t* d = int_smart_array_heap_new(100, malloc);
+    int_smart_array_fill(d, 111);
     int_smart_array_set_at(d, 33, 999);
     assert(int_smart_array_get_at(d, 33) == 999);
 
     pos = int_smart_array_find(d, 999);
     assert(pos.present && pos.value == 33);
+
+    int_smart_array_t* ee = int_smart_array_heap_new(100, malloc);
+    auto_free int_smart_array_t* e = int_smart_array_heap_realloc(ee, 1000, realloc);
+
+    for (unsigned int i = 0; i < e->len; ++i) {
+        e->data[i] = e->len - 1;
+    }
 
     return 0;
 }

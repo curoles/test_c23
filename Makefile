@@ -1,6 +1,7 @@
 CC:=/home/igor/tool/gcc-13.1.0/bindir/bin/gcc
 #gcc -std=gnu17 test_c23.c
-CFLAGS:=-Wall -Werror -std=gnu2x
+CFLAGS:=-Wall -Wextra -Werror -std=gnu2x
+LDFLAGS:=-Wl,-z,stack-size=1000000
 BLD:=../build
 
 TESTS:=c23 nullptr cleanup
@@ -11,7 +12,7 @@ TESTS+=array constexpr immutable offsetof
 TESTS:= $(foreach item,$(TESTS),$(BLD)/test_$(item).o)
 
 all: $(TESTS)
-	$(CC) $(CFLAGS) $^ -o $(BLD)/test
+	$(CC) $(CFLAGS) $^ -o $(BLD)/test $(LDFLAGS)
 	valgrind $(BLD)/test
 
 $(BLD)/%.o: %.c mydefines.h array.inc.h

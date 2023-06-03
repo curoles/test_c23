@@ -42,21 +42,19 @@ typedef struct _SMART_ARRAY {
  *
  * Example:
  * ```
- * int_smart_array_t* stack_a = int_smart_array_stack_new(100);
+ * int_smart_array_t* stack_a = smart_array_stack_new(int_smart_array_t, int, 100);
  * int* d = stack_a->data;
  * for (int i = 0; i < stack_a->len; ++i) {d[i]=i;}
  * for (int i = 0; i < stack_a->len; ++i) {assert(d[i] == i);}
  * ```
  */
-static inline
-FN_ATTR_WARN_UNUSED_RESULT
-_SMART_ARRAY_T*
-_SARRAY_FN(stack_new)(unsigned int len) {
-    _SMART_ARRAY_T* ptr = (_SMART_ARRAY_T*)
-        __builtin_alloca(sizeof(_SMART_ARRAY_T*) + len*sizeof(_ARRAY_TYPE));
-    ptr->len = len;
-    return ptr;
-}
+#define smart_array_stack_new(ARRAY, T, alen) \
+    ({ \
+    typeof (alen) _ARRAY_len = (alen); \
+    ARRAY* ptr = (ARRAY*) \
+        __builtin_alloca(sizeof(ARRAY) + _ARRAY_len*sizeof(T)); \
+    ptr->len = _ARRAY_len; \
+    ptr;})
 
 /* Allocate smart_array on heap.
  *
@@ -66,11 +64,21 @@ _SARRAY_FN(stack_new)(unsigned int len) {
  * ```
  */
 static inline
-FN_ATTR_WARN_UNUSED_RESULT /*malloc attr*/
+FN_ATTR_WARN_UNUSED_RESULT
 _SMART_ARRAY_T*
 _SARRAY_FN(heap_new)(unsigned int len, void*(*allocator)(long unsigned int)) {
     _SMART_ARRAY_T* ptr = (_SMART_ARRAY_T*)
-        allocator(sizeof(_SMART_ARRAY_T*) + len*sizeof(_ARRAY_TYPE));
+        allocator(sizeof(_SMART_ARRAY_T) + len*sizeof(_ARRAY_TYPE));
+    ptr->len = len;
+    return ptr;
+}
+
+static inline
+FN_ATTR_WARN_UNUSED_RESULT
+_SMART_ARRAY_T*
+_SARRAY_FN(heap_realloc)(_SMART_ARRAY_T* self, unsigned int len, void*(*reallocator)(void*, long unsigned int)) {
+    _SMART_ARRAY_T* ptr = (_SMART_ARRAY_T*)
+        reallocator(self, sizeof(_SMART_ARRAY_T) + len*sizeof(_ARRAY_TYPE));
     ptr->len = len;
     return ptr;
 }
@@ -191,6 +199,14 @@ _ARRAY_FN(fill)(unsigned int len, _ARRAY_TYPE a[len], _ARRAY_TYPE val)
     }
 
     return a;
+}
+
+static inline
+__attribute__((nonnull(1))) FN_ATTR_RETURNS_NONNULL
+_ARRAY_TYPE*
+_SARRAY_FN(fill)(_SMART_ARRAY_T* a, _ARRAY_TYPE val)
+{
+    return _ARRAY_FN(fill)(a->len, a->data, val);
 }
 
 #undef _SMART_ARRAY
