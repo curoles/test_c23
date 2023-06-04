@@ -41,7 +41,8 @@
 #define typedef_enum(name, underlying_type) \
     typedef enum name : underlying_type
 
-/* Macro to define variable with auto cleanup function when its lefetime is over.
+/* Macro to define variable with auto cleanup function
+ * that is called when the variable lifetime is over.
  *
  * Example:
  * ```
