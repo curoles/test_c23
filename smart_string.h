@@ -109,3 +109,43 @@ smart_string_append(smart_string_t* self, const char *restrict str)
 
     return self;
 }
+
+static inline
+__attribute__((nonnull(1)))
+int
+smart_string_compare(smart_string_t* self, const char *restrict str)
+{
+    return strncmp(self->storage, str, self->len);
+}
+
+static inline
+__attribute__((nonnull(1)))
+bool
+smart_string_equal(smart_string_t* self, const char *restrict str)
+{
+    return smart_string_compare(self, str) == 0;
+}
+
+static inline
+__attribute__((nonnull(1)))
+const char*
+smart_string_find_first_char(smart_string_t* self, char c)
+{
+    return strchr(self->storage, c);
+}
+
+static inline
+__attribute__((nonnull(1)))
+const char*
+smart_string_find_first_substring(smart_string_t* self, const char* s)
+{
+    return strstr(self->storage, s);
+}
+
+static inline
+__attribute__((nonnull(1)))
+bool
+smart_string_contains(smart_string_t* self, const char* s)
+{
+    return smart_string_find_first_substring(self, s) != nullptr;
+}
