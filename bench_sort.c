@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <time.h>
-#include "mydefines.h"
+#include "c23defines.h"
 
 #define _ARRAY_TYPE int64_t
 #define _ARRAY_TYPE_NAME int64

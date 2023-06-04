@@ -1,4 +1,4 @@
-#include "mydefines.h"
+#include "c23defines.h"
 
 typedef_enum(Rgb, unsigned char) {
     RED, GREEN/*=256 error*/, BLUE/*=-1 error */

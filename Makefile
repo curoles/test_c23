@@ -16,11 +16,11 @@ all: $(TESTS)
 	$(CC) $(CFLAGS) $^ -o $(BLD)/test $(LDFLAGS)
 	valgrind $(BLD)/test
 
-$(BLD)/%.o: %.c mydefines.h array.inc.h smart_string.h
+$(BLD)/%.o: test/%.c c23defines.h array.inc.h smart_string.h
 	@mkdir -p $(BLD)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ -I.
 
-bench_sort: bench_sort.c mydefines.h array.inc.h
+bench_sort: bench_sort.c c23defines.h array.inc.h
 	$(CC) $(CFLAGS) $< -o $(BLD)/bench_sort
 
 .PHONY: clean

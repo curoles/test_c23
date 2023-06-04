@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
-#include "mydefines.h"
+#include "c23defines.h"
 
 typedef int(*test_fn_t)(void);
 

@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "mydefines.h"
+#include "c23defines.h"
 
 #define _ARRAY_TYPE int
 #define _ARRAY_TYPE_NAME int

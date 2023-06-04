@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "mydefines.h"
+#include "c23defines.h"
 
 typedef transparent_union(Num64) {
     unsigned long i;

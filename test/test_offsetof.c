@@ -1,6 +1,6 @@
 #include <stddef.h>
 #include <assert.h>
-#include "mydefines.h"
+#include "c23defines.h"
 
 struct A {
     struct B {} b;

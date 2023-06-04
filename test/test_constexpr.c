@@ -1,5 +1,5 @@
 #include <assert.h>
-#include "mydefines.h"
+#include "c23defines.h"
 
 __attribute__ ((const))
 static inline
