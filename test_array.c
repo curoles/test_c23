@@ -97,7 +97,7 @@ int test_array2(void)
     int_smart_array_insertion_sort(e);
     for (unsigned int i = 1; i < e->len; ++i) {
         //printf("a[%u]:%d <= a[%u]:%d\n", i-1, e->data[i-1], i, e->data[i]);
-        assert(e->data[i-1] <= e->data[i]);
+        assert(e->data[i-1] < e->data[i]);
     }
 
     for (unsigned int i = 0; i < e->len; ++i) {
@@ -107,7 +107,7 @@ int test_array2(void)
     int_smart_array_bubble_sort(e);
     for (unsigned int i = 1; i < e->len; ++i) {
         //printf("a[%u]:%d <= a[%u]:%d\n", i-1, e->data[i-1], i, e->data[i]);
-        assert(e->data[i-1] <= e->data[i]);
+        assert(e->data[i-1] < e->data[i]);
     }
 
     return 0;

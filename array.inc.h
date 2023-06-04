@@ -81,6 +81,16 @@ _SARRAY_FN(heap_new)(unsigned int len, void*(*allocator)(long unsigned int)) {
 static inline
 FN_ATTR_WARN_UNUSED_RESULT
 _SMART_ARRAY_T*
+_SARRAY_FN(heap_aligned_new)(unsigned int len, unsigned int alignment, void*(*allocator)(long unsigned int, long unsigned int)) {
+    _SMART_ARRAY_T* ptr = (_SMART_ARRAY_T*)
+        allocator(alignment, sizeof(_SMART_ARRAY_T) + len*sizeof(_ARRAY_TYPE));
+    ptr->len = len;
+    return ptr;
+}
+
+static inline
+FN_ATTR_WARN_UNUSED_RESULT
+_SMART_ARRAY_T*
 _SARRAY_FN(heap_realloc)(_SMART_ARRAY_T* self, unsigned int len, void*(*reallocator)(void*, long unsigned int)) {
     _SMART_ARRAY_T* ptr = (_SMART_ARRAY_T*)
         reallocator(self, sizeof(_SMART_ARRAY_T) + len*sizeof(_ARRAY_TYPE));
@@ -271,7 +281,7 @@ _ARRAY_FN(bubble_sort)(unsigned int len, _ARRAY_TYPE a[len])
         for (unsigned int i = 0; i < len - step - 1; ++i) {
             if (_ARRAY_TYPE_LT(a[i + 1], a[i]) ) {
                 //_ARRAY_FN(swap_two_pointers)(&a[i], &a[i + 1]);
-                tmp = a[i]; a[i+1] = a[i]; a[i] = tmp;
+                tmp = a[i+1]; a[i+1] = a[i]; a[i] = tmp;
                 swapped = true;
             }
         }
