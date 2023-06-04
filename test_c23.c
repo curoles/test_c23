@@ -16,6 +16,7 @@ extern int test_array(void);
 extern int test_constexpr(void);
 extern int test_immutable(void);
 extern int test_offsetof(void);
+extern int test_string(void);
 
 static test_fn_t tests[] = {
     test_nullptr,
@@ -30,6 +31,7 @@ static test_fn_t tests[] = {
     test_constexpr,
     test_immutable,
     test_offsetof,
+    test_string,
     0
 };
 

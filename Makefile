@@ -8,6 +8,7 @@ TESTS:=c23 nullptr cleanup
 TESTS+=transparent_union enum optional
 TESTS+=foreachbit returnif arraylen
 TESTS+=array constexpr immutable offsetof
+TESTS+=string
 
 TESTS:= $(foreach item,$(TESTS),$(BLD)/test_$(item).o)
 
@@ -15,7 +16,7 @@ all: $(TESTS)
 	$(CC) $(CFLAGS) $^ -o $(BLD)/test $(LDFLAGS)
 	valgrind $(BLD)/test
 
-$(BLD)/%.o: %.c mydefines.h array.inc.h
+$(BLD)/%.o: %.c mydefines.h array.inc.h smart_string.h
 	@mkdir -p $(BLD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
