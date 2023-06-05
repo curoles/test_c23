@@ -30,7 +30,9 @@ int test_array(void)
     assert(static_c.data[1] == 7);
     assert(static_c.data[2] == 7);
 
-    assert(sizeof(int_smart_array_t) == sizeof(unsigned int));
+    printf("sizeof(int_smart_array_t)=%lu\n", sizeof(int_smart_array_t));
+    //assert(sizeof(int_smart_array_t) == sizeof(unsigned int));
+    assert(sizeof(int_smart_array_t) == _SMART_ARRAY_ALIGN);
 
     int_smart_array_t* stack_a = smart_array_stack_new(int_smart_array_t, int, 100);
     int* d = stack_a->data;
@@ -38,7 +40,7 @@ int test_array(void)
     for (unsigned int i = 0; i < stack_a->len; ++i) {d[i]=i;}
     for (unsigned int i = 0; i < stack_a->len; ++i) {assert(d[i] == (int)i);}
 
-    auto_free int_smart_array_t* heap_a = int_smart_array_heap_new(100, malloc);
+    auto_free int_smart_array_t* heap_a = int_smart_array_heap_new(100, aligned_alloc);
     d = heap_a->data;
     for (unsigned int i = 0; i < heap_a->len; ++i) {d[i]=i;}
     for (unsigned int i = 0; i < heap_a->len; ++i) {assert(d[i] == (int)i);}
@@ -79,7 +81,7 @@ int test_array2(void)
     int_array_set_at(10, c, 3, 888);
     assert(int_array_get_at(10, c, 3) == 888);
 
-    auto_free int_smart_array_t* d = int_smart_array_heap_new(100, malloc);
+    auto_free int_smart_array_t* d = int_smart_array_heap_new(100, aligned_alloc);
     int_smart_array_fill(d, 111);
     int_smart_array_set_at(d, 33, 999);
     assert(int_smart_array_get_at(d, 33) == 999);
@@ -87,7 +89,7 @@ int test_array2(void)
     pos = int_smart_array_find(d, 999);
     assert(pos.present && pos.value == 33);
 
-    int_smart_array_t* ee = int_smart_array_heap_new(100, malloc);
+    int_smart_array_t* ee = int_smart_array_heap_new(100, aligned_alloc);
     auto_free int_smart_array_t* e = int_smart_array_heap_realloc(ee, 1000, realloc);
 
     for (unsigned int i = 0; i < e->len; ++i) {

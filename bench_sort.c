@@ -75,7 +75,8 @@ int int64_compare(const void* pa, const void* pb)
     int64_t a = *((int64_t*)pa);
     int64_t b = *((int64_t*)pb);
 
-    return ( (a < b)? -1 : ( (a == b)? 0 : 1) );
+    //return ( (a < b)? -1 : ( (a == b)? 0 : 1) );
+    return a - b;
 }
 
 static
@@ -129,8 +130,8 @@ pattern_random(int64_smart_array_t* a)
 static
 void benches(unsigned int len, unsigned int times)
 {
-    auto_free int64_smart_array_t* a = int64_smart_array_heap_new(len, malloc);
-    auto_free int64_smart_array_t* pattern = int64_smart_array_heap_new(len, malloc);
+    auto_free int64_smart_array_t* a = int64_smart_array_heap_new(len, aligned_alloc);
+    auto_free int64_smart_array_t* pattern = int64_smart_array_heap_new(len, aligned_alloc);
 
     printf("Sorted pattern\n");
     pattern_sorted(pattern);
