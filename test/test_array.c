@@ -35,13 +35,20 @@ int test_array(void)
     assert(sizeof(int_smart_array_t) == _SMART_ARRAY_ALIGN);
 
     int_smart_array_t* stack_a = smart_array_stack_new(int_smart_array_t, int, 100);
+    assert(stack_a != nullptr);
     int* d = stack_a->data;
     assert(stack_a->len == 100);
+    printf("stack allocated array data pointer %p\n", d);
+    assert(((size_t)d & (_SMART_ARRAY_ALIGN - 1)) == 0);
     for (unsigned int i = 0; i < stack_a->len; ++i) {d[i]=i;}
     for (unsigned int i = 0; i < stack_a->len; ++i) {assert(d[i] == (int)i);}
 
     auto_free int_smart_array_t* heap_a = int_smart_array_heap_new(100, aligned_alloc);
+    assert(heap_a != nullptr);
+    assert(heap_a->len == 100);
     d = heap_a->data;
+    printf("heap allocated array data pointer %p\n", d);
+    assert(((size_t)d & (_SMART_ARRAY_ALIGN - 1)) == 0);
     for (unsigned int i = 0; i < heap_a->len; ++i) {d[i]=i;}
     for (unsigned int i = 0; i < heap_a->len; ++i) {assert(d[i] == (int)i);}
 
@@ -89,8 +96,15 @@ int test_array2(void)
     pos = int_smart_array_find(d, 999);
     assert(pos.present && pos.value == 33);
 
-    int_smart_array_t* ee = int_smart_array_heap_new(100, aligned_alloc);
-    auto_free int_smart_array_t* e = int_smart_array_heap_realloc(ee, 1000, realloc);
+    auto_free int_smart_array_t* ee = int_smart_array_heap_new(100, aligned_alloc);
+    ee->data[5] = 55;
+    auto_free void* misal1 = malloc(10*64+1);
+    auto_free void* misal2 = malloc(21*64+2);
+    auto_free void* misal3 = malloc(23*64+3);
+    auto_free int_smart_array_t* e = int_smart_array_heap_realloc(ee, 1000, aligned_alloc);
+    printf("heap re-allocated array data pointer %p\n", e->data);
+    assert(((size_t)e->data & (_SMART_ARRAY_ALIGN - 1)) == 0);
+    assert(e->data[5] == 55);
 
     for (unsigned int i = 0; i < e->len; ++i) {
         e->data[i] = e->len - i;
@@ -111,6 +125,10 @@ int test_array2(void)
         //printf("a[%u]:%d <= a[%u]:%d\n", i-1, e->data[i-1], i, e->data[i]);
         assert(e->data[i-1] < e->data[i]);
     }
+
+    assert(misal1 != nullptr);
+    assert(misal2 != nullptr);
+    assert(misal3 != nullptr);
 
     return 0;
 }

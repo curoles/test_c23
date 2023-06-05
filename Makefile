@@ -23,8 +23,11 @@ $(BLD)/%.o: test/%.c $(HEADERS)
 	@mkdir -p $(BLD)
 	$(CC) $(CFLAGS) -c $< -o $@ -I.
 
-bench_sort: bench_sort.c c23defines.h array.inc.h
-	$(CC) $(CFLAGS) $< -o $(BLD)/bench_sort
+bench_sort: bench/bench_sort.c c23defines.h array.inc.h
+	$(CC) $(CFLAGS) $< -o $(BLD)/bench_sort -I.
+
+bench_add: bench/bench_add.c c23defines.h array.inc.h
+	$(CC) $(CFLAGS) $< -o $(BLD)/bench_add -I.
 
 .PHONY: third
 third:

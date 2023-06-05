@@ -46,6 +46,16 @@ typedef struct _SMART_ARRAY {
     _ARRAY_TYPE data[] __attribute__((aligned(_SMART_ARRAY_ALIGN)));
 } _SMART_ARRAY_T;
 
+static inline
+FN_ATTR_CONST
+size_t
+smart_array_align_len(size_t len, size_t sizeof_type)
+{
+    size_t len_bytes = len * sizeof_type;
+    len_bytes = ((len_bytes + _SMART_ARRAY_ALIGN) / _SMART_ARRAY_ALIGN) * _SMART_ARRAY_ALIGN;
+
+    return len_bytes / sizeof_type;
+}
 
 /* Allocate smart_array on stack.
  *
@@ -60,8 +70,9 @@ typedef struct _SMART_ARRAY {
 #define smart_array_stack_new(ARRAY, T, alen) \
     ({ \
     typeof (alen) _ARRAY_len = (alen); \
+    size_t aligned_len = smart_array_align_len(_ARRAY_len, sizeof(T)); \
     ARRAY* ptr = (ARRAY*) \
-        __builtin_alloca_with_align(sizeof(ARRAY) + _ARRAY_len*sizeof(T), 8*_SMART_ARRAY_ALIGN); \
+        __builtin_alloca_with_align(sizeof(ARRAY) + aligned_len*sizeof(T), 8*_SMART_ARRAY_ALIGN); \
     ptr->len = _ARRAY_len; \
     ptr;})
 
@@ -79,8 +90,9 @@ _SARRAY_FN(heap_new)(
     size_t len,
     void*(*allocator)(size_t, size_t))
 {
+    size_t aligned_len = smart_array_align_len(len, sizeof(_ARRAY_TYPE));
     _SMART_ARRAY_T* ptr = (_SMART_ARRAY_T*)
-        allocator(_SMART_ARRAY_ALIGN, sizeof(_SMART_ARRAY_T) + len*sizeof(_ARRAY_TYPE));
+        allocator(_SMART_ARRAY_ALIGN, sizeof(_SMART_ARRAY_T) + aligned_len*sizeof(_ARRAY_TYPE));
     ptr->len = len;
     return ptr;
 }
@@ -89,10 +101,16 @@ _SARRAY_FN(heap_new)(
 static inline
 FN_ATTR_WARN_UNUSED_RESULT
 _SMART_ARRAY_T*
-_SARRAY_FN(heap_realloc)(_SMART_ARRAY_T* self, size_t len, void*(*reallocator)(void*, size_t)) {
+_SARRAY_FN(heap_realloc)(
+    _SMART_ARRAY_T* self,
+    size_t len,
+    void*(*allocator)(size_t, size_t))
+{
+    size_t aligned_len = smart_array_align_len(len, sizeof(_ARRAY_TYPE));
     _SMART_ARRAY_T* ptr = (_SMART_ARRAY_T*)
-        reallocator(self, sizeof(_SMART_ARRAY_T) + len*sizeof(_ARRAY_TYPE));
+        allocator(_SMART_ARRAY_ALIGN, sizeof(_SMART_ARRAY_T) + aligned_len*sizeof(_ARRAY_TYPE));
     ptr->len = len;
+    __builtin_memcpy(ptr->data, self->data, self->len * sizeof(_ARRAY_TYPE));
     return ptr;
 }
 
