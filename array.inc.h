@@ -27,7 +27,15 @@
 #define _SMART_ARRAY_T PPCAT(_ARRAY_TYPE_NAME, _smart_array_t)
 
 #ifndef _SMART_ARRAY_ALIGN
-#define _SMART_ARRAY_ALIGN 64
+#define _SMART_ARRAY_ALIGN 64u // TODO SMARTARR_SIMD_VLEN
+#endif
+
+#define ATTR_SMART_ARRAY_ALIGNED __attribute__((aligned(_SMART_ARRAY_ALIGN)))
+
+#ifdef _ARRAY_DEBUG
+#define ARRAY_ASSERT_ALIGNED(ptr) assert(((size_t)ptr & (_SMART_ARRAY_ALIGN - 1)) == 0);
+#else
+#define ARRAY_ASSERT_ALIGNED(ptr)
 #endif
 
 /* Smart_array knows its own length.
@@ -100,6 +108,7 @@ _SARRAY_FN(heap_new)(size_t len)
     _SMART_ARRAY_T* ptr = (_SMART_ARRAY_T*)
         aligned_alloc(_SMART_ARRAY_ALIGN, sizeof(_SMART_ARRAY_T) + aligned_len*sizeof(_ARRAY_TYPE));
     ptr->len = len;
+    ARRAY_ASSERT_ALIGNED(ptr->data);
     return ptr;
 }
 
@@ -114,6 +123,7 @@ _SARRAY_FN(heap_realloc)(_SMART_ARRAY_T* self, size_t len)
     ptr->len = len;
     __builtin_memcpy(ptr->data, self->data,
         ((self->len < ptr->len)? self->len : ptr->len) * sizeof(_ARRAY_TYPE));
+    ARRAY_ASSERT_ALIGNED(ptr->data);
     return ptr;
 }
 
@@ -160,6 +170,7 @@ _ARRAY_RO(2, 1) FN_ATTR_WARN_UNUSED_RESULT
 optional_uint_t
 _ARRAY_FN(find)(unsigned int len, const _ARRAY_TYPE a[len], _ARRAY_TYPE val_to_find)
 {
+    ARRAY_ASSERT_ALIGNED(a);
     a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
 
     optional_uint_t pos = {.present = false};
@@ -197,7 +208,10 @@ _ARRAY_RO(2, 1) _ARRAY_RO(3, 1) FN_ATTR_WARN_UNUSED_RESULT
 bool
 _ARRAY_FN(equal)(unsigned int len, const _ARRAY_TYPE a[len], const _ARRAY_TYPE b[len])
 {
+    ARRAY_ASSERT_ALIGNED(a);
+    ARRAY_ASSERT_ALIGNED(b);
     a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
+    b = __builtin_assume_aligned(b, _SMART_ARRAY_ALIGN);
 
     bool equal = true;
 
@@ -216,6 +230,8 @@ _ARRAY_RO(2, 1) _ARRAY_WO(3, 1) FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
 _ARRAY_FN(copy)(unsigned int len, const _ARRAY_TYPE src[len], _ARRAY_TYPE dst[len])
 {
+    ARRAY_ASSERT_ALIGNED(src);
+    ARRAY_ASSERT_ALIGNED(dst);
     src = __builtin_assume_aligned(src, _SMART_ARRAY_ALIGN);
     dst = __builtin_assume_aligned(dst, _SMART_ARRAY_ALIGN);
 
@@ -231,6 +247,8 @@ _ARRAY_RO(2, 1) _ARRAY_WO(3, 1) FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
 _ARRAY_FN(memcopy)(unsigned int len, const _ARRAY_TYPE src[len], _ARRAY_TYPE dst[len])
 {
+    ARRAY_ASSERT_ALIGNED(src);
+    ARRAY_ASSERT_ALIGNED(dst);
     src = __builtin_assume_aligned(src, _SMART_ARRAY_ALIGN);
     dst = __builtin_assume_aligned(dst, _SMART_ARRAY_ALIGN);
 
@@ -242,6 +260,7 @@ _ARRAY_WO(2, 1) FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
 _ARRAY_FN(fill)(unsigned int len, _ARRAY_TYPE a[len], _ARRAY_TYPE val)
 {
+    ARRAY_ASSERT_ALIGNED(a);
     a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
 
     for (unsigned int i = 0; i < len; ++i) {
@@ -264,6 +283,7 @@ _ARRAY_RW(2, 1) FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
 _ARRAY_FN(insertion_sort)(unsigned int len, _ARRAY_TYPE a[len])
 {
+    ARRAY_ASSERT_ALIGNED(a);
     a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
 
     unsigned int j;
@@ -307,6 +327,7 @@ _ARRAY_RW(2, 1) FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
 _ARRAY_FN(bubble_sort)(unsigned int len, _ARRAY_TYPE a[len])
 {
+    ARRAY_ASSERT_ALIGNED(a);
     a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
 
     _ARRAY_TYPE tmp;
@@ -373,6 +394,9 @@ _ARRAY_FN(add)(
     const _ARRAY_TYPE b[len],
           _ARRAY_TYPE c[len])
 {
+    ARRAY_ASSERT_ALIGNED(a);
+    ARRAY_ASSERT_ALIGNED(b);
+    ARRAY_ASSERT_ALIGNED(c);
     a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
     b = __builtin_assume_aligned(b, _SMART_ARRAY_ALIGN);
     c = __builtin_assume_aligned(c, _SMART_ARRAY_ALIGN);

@@ -18,6 +18,7 @@ extern int test_immutable(void);
 extern int test_offsetof(void);
 extern int test_string(void);
 extern int test_list(void);
+extern int test_cpu(void);
 
 static test_fn_t tests[] = {
     test_nullptr,
@@ -34,6 +35,7 @@ static test_fn_t tests[] = {
     test_offsetof,
     test_string,
     test_list,
+    test_cpu,
     0
 };
 

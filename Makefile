@@ -1,6 +1,6 @@
 CC:=/home/igor/tool/gcc-13.1.0/bindir/bin/gcc
 #gcc -std=gnu17 test_c23.c
-CFLAGS:=-Wall -Wextra -Werror -std=gnu2x -O3 -march=native -ftree-vectorize
+CFLAGS:=-Wall -Wextra -Werror -std=gnu2x -O3 -march=native -ftree-vectorize -fopenmp
 LDFLAGS:=-Wl,-z,stack-size=1000000
 BLD:=../build
 THIRD:=../third
@@ -11,7 +11,7 @@ TESTS:=c23 nullptr cleanup
 TESTS+=transparent_union enum optional
 TESTS+=foreachbit returnif arraylen
 TESTS+=array constexpr immutable offsetof
-TESTS+=string list
+TESTS+=string list cpu
 
 TESTS:= $(foreach item,$(TESTS),$(BLD)/test_$(item).o)
 

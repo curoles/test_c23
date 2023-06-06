@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "c23defines.h"
 
+#define _ARRAY_DEBUG
 #define _ARRAY_TYPE int
 #define _ARRAY_TYPE_NAME int
 #include "array.inc.h"
@@ -72,6 +73,7 @@ int test_array(void)
 static
 int test_array2(void)
 {
+    ATTR_SMART_ARRAY_ALIGNED
     int a[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
     auto_type pos = int_array_find(10, a, 7);
@@ -85,10 +87,11 @@ int test_array2(void)
 
     assert(int_array_equal(10, a, a));
 
+    ATTR_SMART_ARRAY_ALIGNED
     int b[10] = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
     assert(!int_array_equal(10, a, b));
 
-    __attribute__((aligned(_SMART_ARRAY_ALIGN)))
+    ATTR_SMART_ARRAY_ALIGNED
     int c[10] = {};
 
     int_array_copy(10, a, c);
