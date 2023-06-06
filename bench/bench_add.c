@@ -17,8 +17,30 @@
 #define _SMART_ARRAY_ALIGN 8
 #include "array.inc.h"
 
+int64_t* seeme1(size_t len,
+    const int64_t *restrict a, const int64_t *restrict b,
+    int64_t *restrict c)
+{
+    a = __builtin_assume_aligned(a, 64);
+    b = __builtin_assume_aligned(b, 64);
+    c = __builtin_assume_aligned(c, 64);
+    int64_array_add(len, a, b, c);
+    return c;
+}
+
+int64_t* seeme2(size_t len,
+    const int64_t *restrict a, const int64_t *restrict b,
+    int64_t *restrict c)
+{
+    a = __builtin_assume_aligned(a, 8);
+    b = __builtin_assume_aligned(b, 8);
+    c = __builtin_assume_aligned(c, 8);
+    xint64_array_add(len, a, b, c);
+    return c;
+}
+
 //static
-void bench1(unsigned int len, unsigned int times)
+double bench1(unsigned int len, unsigned int times)
 {
     auto_free int64_smart_array_t* a = int64_smart_array_heap_new(len);
     auto_free int64_smart_array_t* b = int64_smart_array_heap_new(len);
@@ -48,10 +70,12 @@ void bench1(unsigned int len, unsigned int times)
     double tf = time_diff(time1, time2);
 
     printf("%10.8f\n", tf);
+
+    return tf;
 }
 
 //static
-void bench2(unsigned int len, unsigned int times)
+double bench2(unsigned int len, unsigned int times)
 {
     auto_free xint64_smart_array_t* a = xint64_smart_array_heap_new(len);
     auto_free xint64_smart_array_t* b = xint64_smart_array_heap_new(len);
@@ -81,17 +105,24 @@ void bench2(unsigned int len, unsigned int times)
     double tf = time_diff(time1, time2);
 
     printf("%10.8f\n", tf);
+
+    return tf;
 }
 
 
 int main(void)
 {
-    constexpr unsigned int len = 1024*1024*16;
-    constexpr unsigned int times = 100;
+    // cpuid | grep -A 15 "data cache (1)" | grep 'size synth' => 32K|48K
+    // 32K/sizeof(int64)=4K, 48K->6K
+    // 3 arrays x 2K(8) = 6K(8)
+    constexpr unsigned int len = 1024*2; // stay in L1 data cache
+    constexpr unsigned int times = 1000*1000*10;
 
-    bench1(len, times);
+    double t1 = bench1(len, times);
     auto_free void* misalign_next = malloc(11*64+1);
-    bench2(len, times);
+    double t2 = bench2(len, times);
+
+    printf("8 vs 64: %f = %f%%\n", t2/t1, ((t2-t1)/t1)*100.0);
 
     assert(misalign_next != nullptr);
 
