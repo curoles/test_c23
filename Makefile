@@ -27,8 +27,8 @@ bench_sort: bench/bench_sort.c c23defines.h array.inc.h
 	$(CC) $(CFLAGS) $< -o $(BLD)/bench_sort -I.
 
 bench_add: bench/bench_add.c c23defines.h array.inc.h
-	$(CC) $(CFLAGS) $< -o $(BLD)/bench_add -I.
-	$(CC) $(CFLAGS) -S $< -o $(BLD)/bench_add.s -I.
+	$(CC) $(CFLAGS) $< -o $(BLD)/bench_add -I. -fopenmp
+	$(CC) $(CFLAGS) -S $< -o $(BLD)/bench_add.s -I. -fopenmp
 
 .PHONY: third
 third:
