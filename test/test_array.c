@@ -1,3 +1,4 @@
+#if 1
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -6,6 +7,17 @@
 #define _ARRAY_TYPE int
 #define _ARRAY_TYPE_NAME int
 #include "array.inc.h"
+#else // check that we included all needed headers into ours
+#define _ARRAY_TYPE int
+#define _ARRAY_TYPE_NAME int
+#include "array.inc.h"
+
+#include "c23defines.h"
+
+#include <assert.h>
+#include <stdlib.h>
+#include <stdio.h>
+#endif
 
 
 // see: https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
@@ -76,14 +88,16 @@ int test_array2(void)
     int b[10] = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
     assert(!int_array_equal(10, a, b));
 
+    __attribute__((aligned(_SMART_ARRAY_ALIGN)))
     int c[10] = {};
+
     int_array_copy(10, a, c);
     assert(int_array_equal(10, a, c));
     int_array_memcopy(10, b, c);
     assert(!int_array_equal(10, a, c));
     assert(int_array_equal(10, b, c));
 
-    int_array_fill(10, c, 777);
+    int_array_fill(10, c, 777); // XXX c must be aligned by _SMART_ARRAY_ALIGN
     assert(int_array_get_at(10, c, 3) == 777);
     int_array_set_at(10, c, 3, 888);
     assert(int_array_get_at(10, c, 3) == 888);

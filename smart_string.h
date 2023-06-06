@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "c23defines.h"
 
 typedef struct smart_string

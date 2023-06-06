@@ -1,5 +1,10 @@
 // Author: Igor Lesik 2023
 
+#include <stddef.h>
+#include <stdlib.h>
+
+#include "c23defines.h"
+
 #define PPCAT_NX(a, b) a ## b
 #define PPCAT(a, b) PPCAT_NX(a, b)
 

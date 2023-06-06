@@ -59,7 +59,6 @@
 static inline void cleanup_free(void* p) {
     free(*(void**)p);
 }
-#endif
 
 /* Automatically free heap allocated memory.
  *
@@ -69,6 +68,8 @@ static inline void cleanup_free(void* p) {
  * ```
  */
 #define auto_free __attribute__((cleanup(cleanup_free)))
+
+#endif
 
 
 /* Count number of trailing zero bits in an integer.
