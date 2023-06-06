@@ -2,28 +2,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <time.h>
 #include "c23defines.h"
+
+#include "bench.h"
 
 #define _ARRAY_TYPE int64_t
 #define _ARRAY_TYPE_NAME int64
 #include "array.inc.h"
 
-typedef struct timespec timespec;
-
-static
-timespec time_diff(timespec start, timespec end)
-{
-    timespec temp;
-    if ((end.tv_nsec-start.tv_nsec)<0) {
-        temp.tv_sec = end.tv_sec-start.tv_sec-1;
-        temp.tv_nsec = 1000000000+end.tv_nsec-start.tv_nsec;
-    } else {
-        temp.tv_sec = end.tv_sec-start.tv_sec;
-        temp.tv_nsec = end.tv_nsec-start.tv_nsec;
-    }
-    return temp;
-}
 
 static
 void bench(const char* name,
@@ -43,9 +29,7 @@ void bench(const char* name,
     }
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
 
-    timespec t = time_diff(time1, time2);
-
-    double tf = (1000000000.0*t.tv_sec + t.tv_nsec)/1000000000.0;
+    double tf = time_diff(time1, time2);
 
     printf("%10.8f\n", tf);
 
@@ -130,8 +114,8 @@ pattern_random(int64_smart_array_t* a)
 static
 void benches(unsigned int len, unsigned int times)
 {
-    auto_free int64_smart_array_t* a = int64_smart_array_heap_new(len, aligned_alloc);
-    auto_free int64_smart_array_t* pattern = int64_smart_array_heap_new(len, aligned_alloc);
+    auto_free int64_smart_array_t* a = int64_smart_array_heap_new(len);
+    auto_free int64_smart_array_t* pattern = int64_smart_array_heap_new(len);
 
     printf("Sorted pattern\n");
     pattern_sorted(pattern);

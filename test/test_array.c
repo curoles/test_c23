@@ -43,7 +43,7 @@ int test_array(void)
     for (unsigned int i = 0; i < stack_a->len; ++i) {d[i]=i;}
     for (unsigned int i = 0; i < stack_a->len; ++i) {assert(d[i] == (int)i);}
 
-    auto_free int_smart_array_t* heap_a = int_smart_array_heap_new(100, aligned_alloc);
+    auto_free int_smart_array_t* heap_a = int_smart_array_heap_new(100);
     assert(heap_a != nullptr);
     assert(heap_a->len == 100);
     d = heap_a->data;
@@ -88,7 +88,7 @@ int test_array2(void)
     int_array_set_at(10, c, 3, 888);
     assert(int_array_get_at(10, c, 3) == 888);
 
-    auto_free int_smart_array_t* d = int_smart_array_heap_new(100, aligned_alloc);
+    auto_free int_smart_array_t* d = int_smart_array_heap_new(100);
     int_smart_array_fill(d, 111);
     int_smart_array_set_at(d, 33, 999);
     assert(int_smart_array_get_at(d, 33) == 999);
@@ -96,12 +96,12 @@ int test_array2(void)
     pos = int_smart_array_find(d, 999);
     assert(pos.present && pos.value == 33);
 
-    auto_free int_smart_array_t* ee = int_smart_array_heap_new(100, aligned_alloc);
+    auto_free int_smart_array_t* ee = int_smart_array_heap_new(100);
     ee->data[5] = 55;
     auto_free void* misal1 = malloc(10*64+1);
     auto_free void* misal2 = malloc(21*64+2);
     auto_free void* misal3 = malloc(23*64+3);
-    auto_free int_smart_array_t* e = int_smart_array_heap_realloc(ee, 1000, aligned_alloc);
+    auto_free int_smart_array_t* e = int_smart_array_heap_realloc(ee, 1000);
     printf("heap re-allocated array data pointer %p\n", e->data);
     assert(((size_t)e->data & (_SMART_ARRAY_ALIGN - 1)) == 0);
     assert(e->data[5] == 55);

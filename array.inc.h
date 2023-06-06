@@ -49,12 +49,12 @@ typedef struct _SMART_ARRAY {
 static inline
 FN_ATTR_CONST
 size_t
-smart_array_align_len(size_t len, size_t sizeof_type)
+_SARRAY_FN(align_len)(size_t len)
 {
-    size_t len_bytes = len * sizeof_type;
+    size_t len_bytes = len * sizeof(_ARRAY_TYPE);
     len_bytes = ((len_bytes + _SMART_ARRAY_ALIGN) / _SMART_ARRAY_ALIGN) * _SMART_ARRAY_ALIGN;
 
-    return len_bytes / sizeof_type;
+    return len_bytes / sizeof(_ARRAY_TYPE);
 }
 
 /* Allocate smart_array on stack.
@@ -70,7 +70,10 @@ smart_array_align_len(size_t len, size_t sizeof_type)
 #define smart_array_stack_new(ARRAY, T, alen) \
     ({ \
     typeof (alen) _ARRAY_len = (alen); \
-    size_t aligned_len = smart_array_align_len(_ARRAY_len, sizeof(T)); \
+    size_t len_bytes = _ARRAY_len * sizeof(T); \
+    size_t align = sizeof(ARRAY); \
+    len_bytes = ((len_bytes + align) / align) * align; \
+    size_t aligned_len = len_bytes / sizeof(T); \
     ARRAY* ptr = (ARRAY*) \
         __builtin_alloca_with_align(sizeof(ARRAY) + aligned_len*sizeof(T), 8*_SMART_ARRAY_ALIGN); \
     ptr->len = _ARRAY_len; \
@@ -80,37 +83,32 @@ smart_array_align_len(size_t len, size_t sizeof_type)
  *
  * Example:
  * ```
- * auto_free int_smart_array_t* heap_a = int_smart_array_heap_new(100, aligned_alloc);
+ * auto_free int_smart_array_t* heap_a = int_smart_array_heap_new(100);
  * ```
  */
 static inline
 FN_ATTR_WARN_UNUSED_RESULT
 _SMART_ARRAY_T*
-_SARRAY_FN(heap_new)(
-    size_t len,
-    void*(*allocator)(size_t, size_t))
+_SARRAY_FN(heap_new)(size_t len)
 {
-    size_t aligned_len = smart_array_align_len(len, sizeof(_ARRAY_TYPE));
+    size_t aligned_len = _SARRAY_FN(align_len)(len);
     _SMART_ARRAY_T* ptr = (_SMART_ARRAY_T*)
-        allocator(_SMART_ARRAY_ALIGN, sizeof(_SMART_ARRAY_T) + aligned_len*sizeof(_ARRAY_TYPE));
+        aligned_alloc(_SMART_ARRAY_ALIGN, sizeof(_SMART_ARRAY_T) + aligned_len*sizeof(_ARRAY_TYPE));
     ptr->len = len;
     return ptr;
 }
 
-// FIXME need realloc with alignment! XXX XXX XXX XXX
 static inline
 FN_ATTR_WARN_UNUSED_RESULT
 _SMART_ARRAY_T*
-_SARRAY_FN(heap_realloc)(
-    _SMART_ARRAY_T* self,
-    size_t len,
-    void*(*allocator)(size_t, size_t))
+_SARRAY_FN(heap_realloc)(_SMART_ARRAY_T* self, size_t len)
 {
-    size_t aligned_len = smart_array_align_len(len, sizeof(_ARRAY_TYPE));
+    size_t aligned_len = _SARRAY_FN(align_len)(len);
     _SMART_ARRAY_T* ptr = (_SMART_ARRAY_T*)
-        allocator(_SMART_ARRAY_ALIGN, sizeof(_SMART_ARRAY_T) + aligned_len*sizeof(_ARRAY_TYPE));
+        aligned_alloc(_SMART_ARRAY_ALIGN, sizeof(_SMART_ARRAY_T) + aligned_len*sizeof(_ARRAY_TYPE));
     ptr->len = len;
-    __builtin_memcpy(ptr->data, self->data, self->len * sizeof(_ARRAY_TYPE));
+    __builtin_memcpy(ptr->data, self->data,
+        ((self->len < ptr->len)? self->len : ptr->len) * sizeof(_ARRAY_TYPE));
     return ptr;
 }
 
@@ -333,6 +331,53 @@ _ARRAY_TYPE*
 _SARRAY_FN(bubble_sort)(_SMART_ARRAY_T* a)
 {
     return _ARRAY_FN(bubble_sort)(a->len, a->data);
+}
+
+static inline
+_ARRAY_RW(2, 1) FN_ATTR_RETURNS_NONNULL
+_ARRAY_TYPE*
+_ARRAY_FN(random_sequence)(unsigned int len, _ARRAY_TYPE a[len])
+{
+    for (unsigned int i = 0; i < len; ++i) {
+         a[i] = i;
+    }
+
+    // randomly shuffle
+    for (unsigned int range = len; range > 1; --range) {
+        unsigned int random_index = rand() % range;
+        _ARRAY_FN(swap_two_pointers)(&a[random_index], &a[range - 1]);
+    }
+
+    return a;
+}
+
+static inline
+__attribute__((nonnull(1))) FN_ATTR_RETURNS_NONNULL
+_ARRAY_TYPE*
+_SARRAY_FN(random_sequence)(_SMART_ARRAY_T* a)
+{
+    return _ARRAY_FN(random_sequence)(a->len, a->data);
+}
+
+static inline
+_ARRAY_RO(2, 1) _ARRAY_RO(3, 1) _ARRAY_WO(4, 1) FN_ATTR_RETURNS_NONNULL
+_ARRAY_TYPE*
+_ARRAY_FN(add)(
+    unsigned int len,
+    const _ARRAY_TYPE a[len],
+    const _ARRAY_TYPE b[len],
+          _ARRAY_TYPE c[len])
+{
+    a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
+    b = __builtin_assume_aligned(b, _SMART_ARRAY_ALIGN);
+    c = __builtin_assume_aligned(c, _SMART_ARRAY_ALIGN);
+
+    //#pragma GCC unroll 8
+    #pragma GCC ivdep
+    for (unsigned int i = 0; i < len; ++i) {
+         c[i] = a[i] + b[i];
+    }
+    return c;
 }
 
 #undef _SMART_ARRAY

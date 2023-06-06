@@ -1,6 +1,6 @@
 CC:=/home/igor/tool/gcc-13.1.0/bindir/bin/gcc
 #gcc -std=gnu17 test_c23.c
-CFLAGS:=-Wall -Wextra -Werror -std=gnu2x -O3
+CFLAGS:=-Wall -Wextra -Werror -std=gnu2x -O3 -march=native -ftree-vectorize
 LDFLAGS:=-Wl,-z,stack-size=1000000
 BLD:=../build
 THIRD:=../third
@@ -28,6 +28,7 @@ bench_sort: bench/bench_sort.c c23defines.h array.inc.h
 
 bench_add: bench/bench_add.c c23defines.h array.inc.h
 	$(CC) $(CFLAGS) $< -o $(BLD)/bench_add -I.
+	$(CC) $(CFLAGS) -S $< -o $(BLD)/bench_add.s -I.
 
 .PHONY: third
 third:
